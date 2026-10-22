@@ -1,2 +1,8 @@
 # Ambiente virtual
-*.venv
+*.venv/
+
+# Variáveis de ambiente
+.env
+
+# Cache de módulos python (desnecessário)
+__pycache__/
