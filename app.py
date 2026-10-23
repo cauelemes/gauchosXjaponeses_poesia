@@ -39,7 +39,7 @@ def classificar(pergunta : str, model=DEFAULT_MODEL) -> Rota:
                 
                 Exemplo 4)
                     prompt = "Por favor, me ajude a avaliar se uma árvore é uma coisa gaúcha ou japonesa?"
-                    resposta = {"agentes":["avaliar_coisas"]}
+                    resposta = {"agentes":["avaliador"]}
 
                 """
             },
