@@ -18,16 +18,16 @@ def classificar(pergunta : str, model=DEFAULT_MODEL) -> Rota:
                 decidir se o usuário quer fazer uma ou mais dos 4 trabalhos a seguir:
 
                     1. Gerar poesia feita por um japonês
-                    2. Gerar poesia feita por um sulista
-                    3. Avaliar se alguma coisa é sulista ou japonesa (apenas se pedido explicitamente)
+                    2. Gerar poesia feita por um gaúcho
+                    3. Avaliar se alguma coisa é gaúcha ou japonesa (apenas se pedido explicitamente)
 
                 Cada uma dessas alternativas envolve a invocação de um ou mais dos 3 agentes
                 responsáveis por cada item. Dessa forma, sua resposta deve ser EXCLUSIVAMENTE
                 um JSON conforme o definido para este agente.
 
                 Exemplo 1)
-                    prompt = 'Por favor, escreva poesia sulista'
-                    resposta = {"agentes":["poeta_sulista"]}
+                    prompt = 'Por favor, escreva poesia gaúcha'
+                    resposta = {"agentes":["poeta_gaucho"]}
 
                 Exemplo 2)
                     prompt = 'Por favor, escreva um poema japones'
@@ -35,10 +35,10 @@ def classificar(pergunta : str, model=DEFAULT_MODEL) -> Rota:
 
                 Exemplo 3)
                     prompt = "Por favor, escreva poemas de todo tipo"
-                    resposta = {"agentes":["poeta_japones", "poeta_sulista"]}
+                    resposta = {"agentes":["poeta_japones", "poeta_gaucho"]}
                 
                 Exemplo 4)
-                    prompt = "Por favor, me ajude a avaliar se uma árvore é uma coisa sulista ou japonesa?"
+                    prompt = "Por favor, me ajude a avaliar se uma árvore é uma coisa gaúcha ou japonesa?"
                     resposta = {"agentes":["avaliar_coisas"]}
 
                 """

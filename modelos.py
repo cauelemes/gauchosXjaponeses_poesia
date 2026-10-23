@@ -5,14 +5,14 @@ from pydantic import BaseModel, Field, ValidationError
 import json
 
 class Rota(BaseModel):
-    agentes : list[Literal["poeta_sulista","poeta_japones","avaliar_coisas"]] = Field(
+    agentes : list[Literal["poeta_gaucho","poeta_japones","avaliar_coisas"]] = Field(
         max_length=3, #No máximo, as 3 opções
-        description="""Um agente escreve poesia sulista, um agente escreve poesia japonesa e um agente pode 
-        avaliar se uma coisa qualquer é japonesa ou sulista"""
+        description="""Um agente escreve poesia gaúcha, um agente escreve poesia japonesa e um agente pode 
+        avaliar se uma coisa qualquer é japonesa ou gaúcha"""
     )
 
 # # Testes
-# texto = '{"agentes": ["poeta_sulista", "poeta_japones"]}'
+# texto = '{"agentes": ["poeta_gaucho", "poeta_japones"]}'
 # rota = Rota.model_validate_json(texto)
 # rota_json = Rota.model_json_schema(texto)
 # print(rota)
