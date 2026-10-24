@@ -1,14 +1,15 @@
-import os
 from dotenv import load_dotenv
+from pydantic import ValidationError
 from together import Together
 from modelos import Rota
 
 load_dotenv()
 client = Together()
 DEFAULT_MODEL = "deepseek-ai/DeepSeek-V4.1-Flash-1017"
+MAX_TOKENS = 500
+
 
 def classificar(pergunta : str, model=DEFAULT_MODEL) -> Rota:
-    # Primeira pergunta para modelos
     response = client.chat.completions.create(
         model=model,
         messages=[
@@ -56,16 +57,19 @@ def classificar(pergunta : str, model=DEFAULT_MODEL) -> Rota:
             }
         },
         temperature=0.2,
-        max_tokens=3000,
+        max_tokens=MAX_TOKENS,
     )
-
 
     return response.choices[0].message.content
 
 
 def main():
     prompt = input("Seu Prompt: ")
-    print(classificar(prompt))
+    resposta = classificar(prompt)
+    print(resposta)
+    print(type(resposta))
+    print(resposta.agentes)
 
 
-main()
+if __name__ == "__main__":
+    main()

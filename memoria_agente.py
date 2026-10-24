@@ -1,4 +1,3 @@
-import os
 from dotenv import load_dotenv
 from together import Together
 from together.types.chat import ChatCompletion
@@ -89,4 +88,5 @@ def main():
             print("#==========================================================#\n\n")    
 
 
-main()
+if __name__ == "__main__":
+    main()

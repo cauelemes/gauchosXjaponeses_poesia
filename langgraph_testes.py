@@ -58,29 +58,24 @@ def main():
     # Desenha o grafo em formato Mermaid, que pode ser lido em
     print(graph.get_graph().draw_mermaid())
 
-    """
-        ESQUEMA DO GRAFO:
-
-            START ──(aresta condicional)──┬──▶ nó_A ──▶ END      ← passo 1: A e B rodam juntos
-                                        └──▶ nó_B ──▶ END
-    """ 
 
     # Invocamos grafo com estado inicial
-    st_inicial = State({"query" : "oi", "saidas" : []})
+    st_inicial = State({"query" : "oi", "responses" : []})
     resultado = graph.invoke(st_inicial)
     print("Resultado de invoke direto com entrada 'oi':\n  ", resultado)
 
     # Outro teste
-    st_inicial2 = State({"query" : "tchau, tchau", "saidas" : []})
+    st_inicial2 = State({"query" : "tchau, tchau", "responses" : []})
     resultado2 = graph.invoke(st_inicial2)
-    print("Resultado de invoke direto com entrada 'oi':\n  ", resultado2)
+    print("Resultado de invoke direto com entrada 'tchau':\n  ", resultado2)
 
     # Para ver o que cada nós fez, passo a passo:
     print("Resultado passo a passo:")
     for passo in graph.stream(st_inicial, stream_mode="updates"):
-        # Cada item é {nome_do_no: atualização_que_ele_devolveu}.
+        # Cada passo é {nome_do_no: atualização_que_ele_devolveu}.
         print("  ", passo)
 
     print(graph.get_graph().draw_ascii())
 
-main()
+if __name__ == "__main__":
+    main()
