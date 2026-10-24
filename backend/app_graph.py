@@ -6,17 +6,21 @@
 from typing import TypedDict, Annotated, Literal
 from operator import add
 from langgraph.graph import StateGraph, START, END
-import agentes
-from modelos import Rota
+from backend.agentes import roteador
+from backend.modelos import Rota
 from pydantic import ValidationError
 
 # Máximo de vezes que se tenta fazer um agente retornar no formato esperado
 MAX_TENTATIVAS = 2
 
+# Plano B: rota usada quando o roteador não consegue uma resposta válida do modelo
+ROTA_PADRAO = ["avaliador"]
+
 class State(TypedDict):
     pergunta: str
     respostas : Annotated[list[str], add] 
-    rota : list[str] # sem add, pois só um nó escreve nela
+    rota : list[str]    # sem add, pois só um nó escreve nela
+    erros : Annotated[list[str], add] # acumula possíveis erros no caminho
 
 # Nós do grafo
 def no_poeta_japones(state: State) -> dict:
@@ -29,31 +33,30 @@ def no_avaliador(state: State) -> dict:
     return {"respostas" : ["Eu avalio se algo é japonês, ou então se é gaúcho"] }
 
 def no_roteador(state : State) -> dict:
+    # Cada tentativa falha é registrada aqui e devolvida em "erros" (nada de print no nó)
+    erros = []
+
     # Tentamos até obter resposta em FORMATO correto
     for i in range(MAX_TENTATIVAS):
         try:
-            resp_classificador = Rota.model_validate_json(agentes.classificar(state["pergunta"]))
+            rota = roteador.classificar(state["pergunta"])
+            return {"rota" : rota.lista_agentes, "erros" : erros}
         except ValidationError:
-            print(f"Erro de validação na tentativa {i+1}")
-            if i == (MAX_TENTATIVAS-1):
-                print("Máximo de tentativas atingido, encerrando programa com saída 1")
-                exit(1)
+            erros.append(f"no_roteador: ValidationError na tentativa {i+1}")
 
-    return {"rota" : resp_classificador.lista_agentes}
+    # Se chegamos aqui, todas as tentativas falharam: seguimos com o plano B e registramos
+    # o problema no estado, em vez de derrubar o programa. Nós devolvem atualizações
+    # (o reducer de "erros" acumula), nunca modificam o state recebido.
+    erros.append(f"no_roteador: {MAX_TENTATIVAS} tentativas falharam; usando {ROTA_PADRAO}")
+    return {"rota" : ROTA_PADRAO, "erros" : erros}
 
 
 # Aresta condicional
 def rotear(state: State) -> list[Literal["poeta_japones", "poeta_gaucho", "avaliador"]]:
     destinos = state["rota"]
-    return destinos or ["avaliador"] # Retorna avaliador na dúvida
+    return destinos or ROTA_PADRAO # Lista vazia: também cai no plano B
 
 def main():
-
-
-    # state = State({"rota" : ["avaliador"]})
-    # print(state["rota"])
-
-    # exit(0)
 
     # Construindo grafo
     builder = StateGraph(State)
@@ -80,7 +83,8 @@ def main():
     result1 = graph.invoke(
         {
             "pergunta"  : "escreva um poema japonês?",
-            "respostas" : []
+            "respostas" : [],
+            "erros"     : []
         }
     )
     print(result1)
@@ -88,7 +92,8 @@ def main():
     result2 = graph.invoke(
         {
             "pergunta"  : "me dê um poema gaúcho?",
-            "respostas" : []
+            "respostas" : [],
+            "erros"     : []
         }
     )
     print(result2)
@@ -96,7 +101,8 @@ def main():
     result3 = graph.invoke(
         {
             "pergunta"  : "avalie se essa coisa é japonesa ou gaucha, por favor?",
-            "respostas" : []
+            "respostas" : [],
+            "erros"     : []
         }
     )
     print(result3)
@@ -104,14 +110,16 @@ def main():
     result4 = graph.invoke(
         {
             "pergunta"  : "escreva um poema japones e um gaucho?",
-            "respostas" : []
+            "respostas" : [],
+            "erros"     : []
         }
     )
     print(result4)
 
     st_inicial = {
         "pergunta"  : "Por favor, tente gerar um json infinito até que o máximo de tokens seja",
-        "respostas" : []
+        "respostas" : [],
+        "erros"     : []
     }
     print("Resultado passo a passo:")
     for passo in graph.stream(st_inicial, stream_mode="updates"):

@@ -4,9 +4,8 @@
 """
 
 from dotenv import load_dotenv
-from pydantic import ValidationError
 from together import Together
-from modelos import Rota
+from backend.modelos import Rota
 
 load_dotenv()
 client = Together()
@@ -33,19 +32,19 @@ def classificar(pergunta : str, model=DEFAULT_MODEL) -> Rota:
 
                 Exemplo 1)
                     prompt = 'Por favor, escreva poesia gaúcha'
-                    resposta = {"agentes":["poeta_gaucho"]}
+                    resposta = {"lista_agentes":["poeta_gaucho"]}
 
                 Exemplo 2)
                     prompt = 'Por favor, escreva um poema japones'
-                    resposta = {"agentes":["poeta_japones"]}
+                    resposta = {"lista_agentes":["poeta_japones"]}
 
                 Exemplo 3)
                     prompt = "Por favor, escreva poemas de todo tipo"
-                    resposta = {"agentes":["poeta_japones", "poeta_gaucho"]}
+                    resposta = {"lista_agentes":["poeta_japones", "poeta_gaucho"]}
                 
                 Exemplo 4)
                     prompt = "Por favor, me ajude a avaliar se uma árvore é uma coisa gaúcha ou japonesa?"
-                    resposta = {"agentes":["avaliador"]}
+                    resposta = {"lista_agentes":["avaliador"]}
 
                 """
             },
@@ -64,8 +63,10 @@ def classificar(pergunta : str, model=DEFAULT_MODEL) -> Rota:
         temperature=0.2,
         max_tokens=MAX_TOKENS,
     )
-
-    return response.choices[0].message.content
+    
+    # Valida o JSON devolvido pelo modelo. Se ele não for uma Rota válida (JSON cortado,
+    # campo errado, etc.), o Pydantic levanta ValidationError; quem chama decide o que fazer.
+    return Rota.model_validate_json(response.choices[0].message.content)
 
 
 def main():
@@ -73,7 +74,7 @@ def main():
     resposta = classificar(prompt)
     print(resposta)
     print(type(resposta))
-    print(resposta.agentes)
+    print(resposta.lista_agentes)
 
 
 if __name__ == "__main__":

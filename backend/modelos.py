@@ -13,16 +13,4 @@ class Rota(BaseModel):
         avaliar se uma coisa qualquer é japonesa ou gaúcha"""
     )
 
-# Testes 
-# texto = '{"agentes": ["poeta_gaucho", "poeta_japones"]}'
-# rota = Rota.model_validate_json(texto)
-# rota_json = Rota.model_json_schema(texto)
-# print(rota)
-# print("\n#====================================# \n")
-# print(rota_json)
-# print(json.dumps(Rota.model_json_schema(), indent=2))
-# print(Rota.model_fields)
-# print
-
-
 
