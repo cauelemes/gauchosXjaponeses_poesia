@@ -1,3 +1,8 @@
+"""
+    Código de todos os agentes usados.
+    Tipo: projeto
+"""
+
 from dotenv import load_dotenv
 from pydantic import ValidationError
 from together import Together

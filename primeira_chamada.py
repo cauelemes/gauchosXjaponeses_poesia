@@ -1,3 +1,8 @@
+"""
+    Testando chamar modelo com Together pela primeira vez
+    Tipo: experimento
+"""
+
 import os
 from dotenv import load_dotenv
 from together import Together

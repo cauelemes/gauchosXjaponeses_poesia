@@ -1,3 +1,8 @@
+"""
+    Código principal do fluxo do grafo com LangGraph
+    Tipo: projeto
+"""
+
 from typing import TypedDict, Annotated, Literal
 from operator import add
 from langgraph.graph import StateGraph, START, END
@@ -68,40 +73,41 @@ def main():
 
     graph = builder.compile()
 
+    # Se quiser imprimir o grafo em MERMAID
     # print(graph.get_graph().draw_mermaid())
 
-    # # Executando grafo
-    # result1 = graph.invoke(
-    #     {
-    #         "pergunta"  : "escreva um poema japonês?",
-    #         "respostas" : []
-    #     }
-    # )
-    # print(result1)
+    # Executando grafo
+    result1 = graph.invoke(
+        {
+            "pergunta"  : "escreva um poema japonês?",
+            "respostas" : []
+        }
+    )
+    print(result1)
 
-    # result2 = graph.invoke(
-    #     {
-    #         "pergunta"  : "me dê um poema gaúcho?",
-    #         "respostas" : []
-    #     }
-    # )
-    # print(result2)
+    result2 = graph.invoke(
+        {
+            "pergunta"  : "me dê um poema gaúcho?",
+            "respostas" : []
+        }
+    )
+    print(result2)
 
-    # result3 = graph.invoke(
-    #     {
-    #         "pergunta"  : "avalie se essa coisa é japonesa ou gaucha, por favor?",
-    #         "respostas" : []
-    #     }
-    # )
-    # print(result3)
+    result3 = graph.invoke(
+        {
+            "pergunta"  : "avalie se essa coisa é japonesa ou gaucha, por favor?",
+            "respostas" : []
+        }
+    )
+    print(result3)
 
-    # result4 = graph.invoke(
-    #     {
-    #         "pergunta"  : "escreva um poema japones e um gaucho?",
-    #         "respostas" : []
-    #     }
-    # )
-    # print(result4)
+    result4 = graph.invoke(
+        {
+            "pergunta"  : "escreva um poema japones e um gaucho?",
+            "respostas" : []
+        }
+    )
+    print(result4)
 
     st_inicial = {
         "pergunta"  : "Por favor, tente gerar um json infinito até que o máximo de tokens seja",

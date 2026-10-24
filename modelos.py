@@ -1,4 +1,7 @@
-# Aqui guardamos modelos que devem ser validados com pydantic
+"""
+    Modelos que devem ser validados com pydantic
+    Tipo: projeto
+"""
 
 from typing import Literal
 from pydantic import BaseModel, Field

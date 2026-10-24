@@ -1,3 +1,8 @@
+"""
+    Testando estrutura LangGraph sem LLMs
+    Tipo: experimento
+"""
+
 from typing import TypedDict, Annotated, Literal
 from operator import add
 

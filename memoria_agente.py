@@ -1,3 +1,8 @@
+"""
+    Testando chamar modelo com opção de guardar contexto/memória pela primeira vez
+    Tipo: experiment
+"""
+
 from dotenv import load_dotenv
 from together import Together
 from together.types.chat import ChatCompletion
