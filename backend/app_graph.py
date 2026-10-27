@@ -6,10 +6,10 @@
 from typing import TypedDict, Annotated, Literal
 from operator import add
 from langgraph.graph import StateGraph, START, END
-from backend.agentes import roteador
+from backend.agentes import roteador, criadores
 from backend.modelos import Rota
 from pydantic import ValidationError
-from backend import client
+from together import APIError
 
 # Máximo de vezes que se tenta fazer um agente retornar no formato esperado
 MAX_TENTATIVAS = 2
@@ -23,15 +23,32 @@ class State(TypedDict):
     rota : list[str]    # sem add, pois só um nó escreve nela
     erros : Annotated[list[str], add]   # acumula possíveis erros no caminho
 
+# Função auxiliar dos nós de agentes: chama o agente e transforma falhas em registro no estado.
+# Por que tratar aqui e não deixar a exceção subir? Se um nó levanta uma exceção, o
+# graph.invoke inteiro falha, mesmo que outro agente (rodando em paralelo) tenha dado certo.
+# Capturando, o grafo termina normalmente: o agente que falhou deixa uma mensagem em "erros"
+# e os demais continuam contribuindo com suas respostas.
+def _executar_agente(state: State, agente: str) -> dict:
+    try:
+        return {"respostas" : [criadores.pedido_agentes(state["pergunta"], agente)]}
+    except APIError as e:
+        # APIError é a classe-base das falhas da Together: conexão, timeout, limite de
+        # requisições (RateLimitError), chave inválida (AuthenticationError), etc.
+        # Usamos o nome da classe na mensagem para saber o tipo de falha sem expor detalhes.
+        return {"erros" : [f"{agente}: {type(e).__name__}"]}
+    except ValueError as e:
+        # Levantado por criadores.resposta_agente quando o modelo devolve texto vazio
+        return {"erros" : [f"{agente}: {e}"]}
+
 # Nós do grafo
 def no_poeta_japones(state: State) -> dict:
-    return {"respostas" : [client.pedido_agentes(state["pergunta"], "poeta_japones")] }
+    return _executar_agente(state, "poeta_japones")
 
 def no_poeta_gaucho(state: State) -> dict:
-    return {"respostas" : [client.pedido_agentes(state["pergunta"], "poeta_gaucho")] }
+    return _executar_agente(state, "poeta_gaucho")
 
 def no_avaliador(state: State) -> dict:
-    return {"respostas" : [client.pedido_agentes(state["pergunta"], "avaliador")] }
+    return _executar_agente(state, "avaliador")
 
 def no_roteador(state : State) -> dict:
     # Cada tentativa falha é registrada aqui e devolvida em "erros" (nada de print no nó)

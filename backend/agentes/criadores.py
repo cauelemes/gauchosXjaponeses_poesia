@@ -57,7 +57,14 @@ def resposta_agente(pergunta : str, MAX_TOKENS : int, TEMPERATURE : float, SYS_P
         temperature=TEMPERATURE,
         max_tokens=MAX_TOKENS,
     )
-    return response.choices[0].message.content
+    texto = response.choices[0].message.content
+
+    # Em modelos de raciocínio, se o max_tokens acabar antes do texto final, o "content"
+    # vem vazio (None ou ""). Isso não gera exceção na API, então checamos nós mesmos:
+    # é melhor falhar aqui (com ValueError) do que devolver "None" como se fosse resposta.
+    if not texto:
+        raise ValueError("resposta vazia do modelo (max_tokens pode ter sido insuficiente)")
+    return texto
 
 
 def main():

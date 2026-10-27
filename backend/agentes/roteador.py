@@ -3,10 +3,9 @@
     Tipo: projeto
 """
 
-from backend.client import invoca_cliente
+from backend.client import client
 from backend.modelos import Rota
 
-client = invoca_cliente()
 DEFAULT_MODEL = "deepseek-ai/DeepSeek-V4.1-Flash-1017"
 MAX_TOKENS = 500
 
