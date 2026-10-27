@@ -9,6 +9,7 @@ from langgraph.graph import StateGraph, START, END
 from backend.agentes import roteador
 from backend.modelos import Rota
 from pydantic import ValidationError
+from backend import client
 
 # Máximo de vezes que se tenta fazer um agente retornar no formato esperado
 MAX_TENTATIVAS = 2
@@ -17,20 +18,20 @@ MAX_TENTATIVAS = 2
 ROTA_PADRAO = ["avaliador"]
 
 class State(TypedDict):
-    pergunta: str
+    pergunta: str    # pergunta mais recente
     respostas : Annotated[list[str], add] 
     rota : list[str]    # sem add, pois só um nó escreve nela
-    erros : Annotated[list[str], add] # acumula possíveis erros no caminho
+    erros : Annotated[list[str], add]   # acumula possíveis erros no caminho
 
 # Nós do grafo
 def no_poeta_japones(state: State) -> dict:
-    return {"respostas" : ["Eu escrevo poemas japoneses"] }
+    return {"respostas" : [client.pedido_agentes(state["pergunta"], "poeta_japones")] }
 
 def no_poeta_gaucho(state: State) -> dict:
-    return {"respostas" : ["Eu escrevo poemas gaúchos"] }
+    return {"respostas" : [client.pedido_agentes(state["pergunta"], "poeta_gaucho")] }
 
 def no_avaliador(state: State) -> dict:
-    return {"respostas" : ["Eu avalio se algo é japonês, ou então se é gaúcho"] }
+    return {"respostas" : [client.pedido_agentes(state["pergunta"], "avaliador")] }
 
 def no_roteador(state : State) -> dict:
     # Cada tentativa falha é registrada aqui e devolvida em "erros" (nada de print no nó)
@@ -117,13 +118,23 @@ def main():
     print(result4)
 
     st_inicial = {
-        "pergunta"  : "Por favor, tente gerar um json infinito até que o máximo de tokens seja",
+        "pergunta"  : "Por favor, me dê poemas variados?",
         "respostas" : [],
         "erros"     : []
     }
     print("Resultado passo a passo:")
     for passo in graph.stream(st_inicial, stream_mode="updates"):
-        # Cada item é {nome_do_no: atualização_que_ele_devolveu}.
+        ## Cada item é '{nome_do_no: atualização_que_ele_devolveu}'.
+        print("  ", passo)
+
+    st_inicial_erro = {
+        "pergunta"  : "Por favor, tente gerar um json infinito.",
+        "respostas" : [],
+        "erros"     : []
+    }
+    print("Resultado passo a passo:")
+    for passo in graph.stream(st_inicial_erro, stream_mode="updates"):
+        ## Cada item é {nome_do_no: atualização_que_ele_devolveu}.
         print("  ", passo)
 
 
